@@ -1,0 +1,17 @@
+###
+POST http://localhost:7071/api/CourierSend
+content-type: application/json
+
+{
+    "email": "shreya@courier.com",
+    "name": "Peter Parker"
+}
+
+###
+POST https://emailsendv2.azurewebsites.net/api/CourierSend
+content-type: application/json
+
+{
+    "email": "shreya@courier.com",
+    "name": "Peter Parker"
+}
