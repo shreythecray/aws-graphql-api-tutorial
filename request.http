@@ -15,3 +15,7 @@ content-type: application/json
     "email": "shreya@courier.com",
     "name": "Peter Parker"
 }
+
+###
+
+GET https://api.spotify.com/v1/browse/categories/dinner/playlists
