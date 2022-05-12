@@ -20,43 +20,59 @@ module.exports = async function (context, req) {
 
     const jonah2 = "https://pbs.twimg.com/profile_images/1474127491270950915/LMehaQuL_400x400.jpg";
 
-    let detectedFace = await client.face.detectWithUrl(jonah2,
-    {
-        returnFaceAttributes: ["Emotion"],
-        // We specify detection model 1 because we are retrieving attributes.
-        detectionModel: "detection_01",
-        recognitionModel: "recognition_03"
+    // let detectedFace = await client.face.detectWithUrl(jonah2,
+    // {
+    //     returnFaceAttributes: ["Emotion"],
+    //     // We specify detection model 1 because we are retrieving attributes.
+    //     detectionModel: "detection_01",
+    //     recognitionModel: "recognition_03"
+    // });
+
+    // const anger = detectedFace[0].faceAttributes.emotion.anger;
+    // const contempt = detectedFace[0].faceAttributes.emotion.contempt;
+    // const disgust = detectedFace[0].faceAttributes.emotion.disgust;
+    // const fear = detectedFace[0].faceAttributes.emotion.fear;
+    // const happiness = detectedFace[0].faceAttributes.emotion.happiness;
+    // const neutral = detectedFace[0].faceAttributes.emotion.neutral;
+    // const sadness = detectedFace[0].faceAttributes.emotion.sadness;
+    // const surprise = detectedFace[0].faceAttributes.emotion.surprise;
+
+    // context.log("Emotion: " + main_emotion);
+
+    const SpotifyEndpoint = "https://api.spotify.com/v1/browse/categories/dinner/playlists";
+    const clientId = process.env["Spotify_Client_ID"];
+    const clientSecret = process.env["Spotify_Client_Secret"];
+
+    const TokenEndpoint = "https://accounts.spotify.com/api/token"
+
+    const TokenURL = `${TokenEndpoint}?grant_type=client_credentials`
+
+    const response1 = await fetch(TokenURL, {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
+        }
     });
 
-    const anger = detectedFace[0].faceAttributes.emotion.anger;
-    const contempt = detectedFace[0].faceAttributes.emotion.contempt;
-    const disgust = detectedFace[0].faceAttributes.emotion.disgust;
-    const fear = detectedFace[0].faceAttributes.emotion.fear;
-    const happiness = detectedFace[0].faceAttributes.emotion.happiness;
-    const neutral = detectedFace[0].faceAttributes.emotion.neutral;
-    const sadness = detectedFace[0].faceAttributes.emotion.sadness;
-    const surprise = detectedFace[0].faceAttributes.emotion.surprise;
+    const responseFromTokenEndpoint = await response1.json();
+    const token = responseFromTokenEndpoint.access_token;
 
-    //TODO: const main_emotion = ;
+    // Spotify API Integration
+    const response2 = await fetch(SpotifyEndpoint, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer $(token)`,
+            'Content-Type': 'application/json'
+          },
+    });
 
-    context.log("Emotion: " + main_emotion);
-
-    // const response = await fetch(FaceAPI_Endpoint + "/face/v1.0/detect?returnFaceAttributes=emotion", {
-    //     method: 'post',
-    //     body: {
-    //         "url": jonah2
-    //       },
-    //     headers: {'Ocp-Apim-Subscription-Key': FaceAPI_Key}
-    // });
-    // const data = await response.json();
-
-    // context.log("Emotion: " + data.anger);
-
+    //console.log(response.json());
+    return response2.json();
+    
     const email = req.body && req.body.email;
     const name = req.body && req.body.name;
 
     const { requestId } = await courier.send({
-
         message: {
     
         to: {
@@ -90,7 +106,6 @@ module.exports = async function (context, req) {
     const responseMessage = email + " was sent successfully with response id: " + requestId;
 
     context.res = {
-        // status: 200, /* Defaults to 200 */
         body: responseMessage
     };
 }
